@@ -1,6 +1,6 @@
 import { A2UIProvider, A2UISurface, ThemeProvider, createProcessor, Types } from "@a2ui/solid";
 import { Title } from "@solidjs/meta";
-import { onMount } from "solid-js";
+import { onCleanup, onMount } from "solid-js";
 
 const processor = createProcessor();
 
@@ -10,102 +10,52 @@ processor.onDispatch(async (event) => {
   event.resolve([]);
 });
 
-function simulateAgentMessage() {
-  const messages: Types.ServerToClientMessage[] = [
-    {
-      beginRendering: {
-        surfaceId: "main",
-        root: "root",
-      },
-    },
-    {
-      surfaceUpdate: {
-        surfaceId: "main",
-        components: [
-          {
-            id: "root",
-            component: {
-              Column: {
-                children: { explicitList: ["title", "subtitle", "button-row"] },
-              },
-            },
-          },
-          {
-            id: "title",
-            component: {
-              Text: {
-                text: { literalString: "Hello from A2UI!" },
-                usageHint: "h1",
-              },
-            },
-          },
-          {
-            id: "subtitle",
-            component: {
-              Text: {
-                text: {
-                  literalString: "This is rendered by the SolidJS renderer inside SolidStart.",
-                },
-                usageHint: "body",
-              },
-            },
-          },
-          {
-            id: "button-row",
-            component: {
-              Row: {
-                children: { explicitList: ["btn-1", "btn-2"] },
-              },
-            },
-          },
-          {
-            id: "btn-1",
-            component: {
-              Button: {
-                action: { name: "greet", context: [] },
-                child: "btn-1-text",
-              },
-            },
-          },
-          {
-            id: "btn-1-text",
-            component: {
-              Text: {
-                text: { literalString: "Say Hello" },
-                usageHint: "body",
-              },
-            },
-          },
-          {
-            id: "btn-2",
-            component: {
-              Button: {
-                action: { name: "goodbye", context: [] },
-                child: "btn-2-text",
-              },
-            },
-          },
-          {
-            id: "btn-2-text",
-            component: {
-              Text: {
-                text: { literalString: "Say Goodbye" },
-                usageHint: "body",
-              },
-            },
-          },
-        ],
-      },
-    },
-  ];
+function startA2uiSseTransport(processor: ReturnType<typeof createProcessor>) {
+  const subject = "a2ui.main";
+  const es = new EventSource(`/api/a2ui/stream?subject=${encodeURIComponent(subject)}`);
 
-  processor.processMessages(messages);
+  es.addEventListener("ready", (evt) => {
+    console.log("A2UI transport ready:", (evt as MessageEvent).data);
+  });
+
+  es.addEventListener("a2ui", (evt) => {
+    const raw = (evt as MessageEvent).data;
+    try {
+      const parsed = JSON.parse(raw);
+      const messages: Types.ServerToClientMessage[] = Array.isArray(parsed) ? parsed : [parsed];
+      processor.processMessages(messages);
+    } catch (err) {
+      console.warn("Failed to parse A2UI SSE message", err);
+    }
+  });
+
+  es.addEventListener("a2ui_error", (evt) => {
+    const raw = (evt as MessageEvent).data;
+    console.warn("A2UI transport server error:", raw);
+  });
+
+  es.addEventListener("error", (evt) => {
+    // Browser will retry automatically. If the server emitted an SSE 'error' event,
+    // it may arrive here with a JSON payload.
+    const maybeData = (evt as unknown as MessageEvent | undefined)?.data;
+    if (typeof maybeData === "string" && maybeData.length > 0) {
+      console.warn("A2UI transport error:", maybeData);
+      return;
+    }
+    // Avoid spamming logs: this fires during normal reconnect behavior.
+    console.warn("A2UI transport connection issue (will retry)");
+  });
+
+  return () => {
+    es.close();
+  };
 }
 
 export default function A2UIDemoRoute() {
   onMount(() => {
-    // Client-only: hydrate first, then push messages.
-    setTimeout(simulateAgentMessage, 50);
+    // Client-only: connect after hydration.
+    const stop = startA2uiSseTransport(processor);
+    onCleanup(stop);
   });
 
   return (

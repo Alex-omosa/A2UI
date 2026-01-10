@@ -1,5 +1,10 @@
 // @refresh reload
 import { createHandler, StartServer } from "@solidjs/start/server";
+import { warmNatsConnection } from "~/server/nats";
+
+// Best-effort: initialize the server-wide NATS connection once.
+// In dev with HMR this module can reload; the singleton is stored on globalThis.
+void warmNatsConnection();
 
 export default createHandler(() => (
   <StartServer
