@@ -1,12 +1,8 @@
 /**
- * A2UI Demo Publisher
- * 
- * This script publishes A2UI messages to NATS with random intervals (2-5 seconds)
- * to demonstrate streaming UI updates.
- * 
- * Run with: 
- *   npm run demo         # Run once
- *   npm run demo:loop    # Loop continuously
+ * Publishes demo A2UI v0.8 messages to NATS.
+ *
+ * - `npm run demo`: publish one sequence
+ * - `npm run demo:loop`: publish continuously with random delays
  */
 
 import { connect, JSONCodec, type NatsConnection } from "nats";
@@ -41,32 +37,31 @@ function createComponent(id: string, type: string, props: Record<string, unknown
 // Generate messages with current timestamp
 function generateDemoMessages() {
   return [
-    // Message 1: First send surfaceUpdate to populate component buffer
-    // IMPORTANT: surfaceUpdate must come BEFORE beginRendering because
-    // the processor handles beginRendering first, which tries to build
-    // the component tree from the buffer
-    {
-      surfaceUpdate: {
-        surfaceId: "main",
-        components: [
-          createComponent("root-column", "Column", {
-            children: { explicitList: ["header-text"] },
-          }),
-          createComponent("header-text", "Text", {
-            text: { literalString: "🚀 Welcome to A2UI Streaming Demo" },
-            usageHint: "h1",
-          }),
-        ],
+    // Message 1: Publish the initial surfaceUpdate + beginRendering together.
+    // This matches the behavior of the working bash script and prevents a
+    // blank UI while waiting for beginRendering.
+    [
+      {
+        surfaceUpdate: {
+          surfaceId: "main",
+          components: [
+            createComponent("root-column", "Column", {
+              children: { explicitList: ["header-text"] },
+            }),
+            createComponent("header-text", "Text", {
+              text: { literalString: "🚀 Welcome to A2UI Streaming Demo" },
+              usageHint: "h1",
+            }),
+          ],
+        },
       },
-    },
-
-    // Message 2: Now trigger rendering with beginRendering
-    {
-      beginRendering: {
-        surfaceId: "main",
-        root: "root-column",
+      {
+        beginRendering: {
+          surfaceId: "main",
+          root: "root-column",
+        },
       },
-    },
+    ],
 
     // Message 3: Add a subtitle
     {
@@ -274,8 +269,9 @@ async function publishDemoSequence(nc: NatsConnection, subject: string, iteratio
     
     console.log(`📨 [${getTimestamp()}] Publishing message ${messageNum}/${demoMessages.length}...`);
     
-    // Publish the message to NATS
-    nc.publish(subject, jc.encode(message));
+    // Publish the message to NATS. Each item is either a single A2UI message
+    // or a batch (array) of messages.
+    nc.publish(subject, jc.encode(message as unknown));
     
     console.log(`   ✓ Message ${messageNum} published`);
 

@@ -28,6 +28,8 @@ export async function GET(event: APIEvent) {
 
   const { url: natsUrl, streamName, subjectPrefix } = getNatsConfig();
   const subject = url.searchParams.get("subject") ?? `${subjectPrefix}.main`;
+  const deliverParam = (url.searchParams.get("deliver") ?? "all").toLowerCase();
+  const deliverPolicy = deliverParam === "new" ? DeliverPolicy.New : DeliverPolicy.All;
 
   const encoder = new TextEncoder();
 
@@ -57,103 +59,103 @@ export async function GET(event: APIEvent) {
 
   const body = new ReadableStream<Uint8Array>({
     start(controller) {
-      controller.enqueue(encoder.encode(toSseEvent("ready", JSON.stringify({ subject }))));
+      controller.enqueue(
+        encoder.encode(
+          toSseEvent(
+            "ready",
+            JSON.stringify({
+              subject,
+              deliver: deliverPolicy === DeliverPolicy.New ? "new" : "all",
+            })
+          )
+        )
+      );
 
       (async () => {
         try {
+          // Establish shared deps once, then create ONE pull consumer per SSE connection.
+          // Re-pull on that consumer repeatedly (consume() expires) to avoid consumer churn.
+          const js = await getJetStreamClient().catch((err) => {
+            controller.enqueue(
+              encoder.encode(
+                toSseEvent(
+                  "a2ui_error",
+                  JSON.stringify({
+                    code: "nats_unreachable",
+                    message: `Failed to connect to NATS at ${natsUrl}. Is it running?`,
+                    detail: err instanceof Error ? err.message : String(err),
+                  })
+                )
+              )
+            );
+            throw err;
+          });
+
+          const jsm = await getJetStreamManager().catch((err) => {
+            controller.enqueue(
+              encoder.encode(
+                toSseEvent(
+                  "a2ui_error",
+                  JSON.stringify({
+                    code: "jetstream_unavailable",
+                    message:
+                      "JetStream manager unavailable. Is your nats-server running with JetStream enabled (nats-server -js)?",
+                    detail: err instanceof Error ? err.message : String(err),
+                  })
+                )
+              )
+            );
+            throw err;
+          });
+
+          await ensureStream(jsm, streamName, subjectPrefix).catch((err) => {
+            controller.enqueue(
+              encoder.encode(
+                toSseEvent(
+                  "a2ui_error",
+                  JSON.stringify({
+                    code: "stream_create_failed",
+                    message: `Failed to get/create JetStream stream '${streamName}'.`,
+                    detail: err instanceof Error ? err.message : String(err),
+                  })
+                )
+              )
+            );
+            throw err;
+          });
+
+          const consumerName = `a2ui_sse_${globalThis.crypto?.randomUUID?.() ?? Math.random().toString(16).slice(2)}`;
+          await jsm.consumers.add(streamName, {
+            name: consumerName,
+            ack_policy: AckPolicy.Explicit,
+            deliver_policy: deliverPolicy,
+            filter_subject: subject,
+          });
+
+          const consumer = await js.consumers.get(streamName, consumerName);
+          let messages: Awaited<ReturnType<typeof consumer.consume>> | undefined;
+
+          subscriptionCleanup = async () => {
+            try {
+              await messages?.close();
+            } catch {
+              // ignore
+            } finally {
+              messages = undefined;
+            }
+            try {
+              await consumer.delete();
+            } catch {
+              // ignore
+            }
+          };
+
           while (!aborted) {
             try {
-              // Server-wide singleton connection.
-              // If NATS is down, this rejects and we retry.
-              await getJetStreamClient();
-            } catch (err) {
-              controller.enqueue(
-                encoder.encode(
-                  toSseEvent(
-                    "a2ui_error",
-                    JSON.stringify({
-                      code: "nats_unreachable",
-                      message: `Failed to connect to NATS at ${natsUrl}. Is it running?`,
-                      detail: err instanceof Error ? err.message : String(err),
-                    })
-                  )
-                )
-              );
-              await sleep(1000);
-              continue;
-            }
-
-            let jsm: JetStreamManager;
-            try {
-              jsm = await getJetStreamManager();
-            } catch (err) {
-              controller.enqueue(
-                encoder.encode(
-                  toSseEvent(
-                    "a2ui_error",
-                    JSON.stringify({
-                      code: "jetstream_unavailable",
-                      message:
-                        "JetStream manager unavailable. Is your nats-server running with JetStream enabled (nats-server -js)?",
-                      detail: err instanceof Error ? err.message : String(err),
-                    })
-                  )
-                )
-              );
-              await sleep(1000);
-              continue;
-            }
-
-            try {
-              await ensureStream(jsm, streamName, subjectPrefix);
-            } catch (err) {
-              controller.enqueue(
-                encoder.encode(
-                  toSseEvent(
-                    "a2ui_error",
-                    JSON.stringify({
-                      code: "stream_create_failed",
-                      message: `Failed to get/create JetStream stream '${streamName}'.`,
-                      detail: err instanceof Error ? err.message : String(err),
-                    })
-                  )
-                )
-              );
-              await sleep(1000);
-              continue;
-            }
-
-            try {
-              const js = await getJetStreamClient();
-
-              // Create an ephemeral *pull* consumer per SSE client so each client gets its
-              // own delivery state (no push consumer / deliver_subject needed).
-              const consumerName = `a2ui_sse_${globalThis.crypto?.randomUUID?.() ?? Math.random().toString(16).slice(2)}`;
-              await jsm.consumers.add(streamName, {
-                name: consumerName,
-                ack_policy: AckPolicy.Explicit,
-                deliver_policy: DeliverPolicy.New,
-                filter_subject: subject,
-              });
-
-              const consumer = await js.consumers.get(streamName, consumerName);
-              const messages = await consumer.consume({
-                // Keep the request responsive; the consumer will re-request.
+              messages = await consumer.consume({
+                // The server will renew pulls; this keeps the loop responsive.
                 expires: 30_000,
               });
-
-              subscriptionCleanup = async () => {
-                try {
-                  await messages.close();
-                } catch {
-                  // ignore
-                }
-                try {
-                  await consumer.delete();
-                } catch {
-                  // ignore
-                }
-              };
 
               for await (const msg of messages) {
                 if (aborted) break;
@@ -178,17 +180,23 @@ export async function GET(event: APIEvent) {
                   toSseEvent(
                     "a2ui_error",
                     JSON.stringify({
-                      code: "subscribe_failed",
-                      message: `Failed subscribing to subject '${subject}' in stream '${streamName}'.`,
+                      code: "consume_failed",
+                      message: `Failed consuming from subject '${subject}' in stream '${streamName}'.`,
                       detail: err instanceof Error ? err.message : String(err),
                     })
                   )
                 )
               );
+              await sleep(500);
+            } finally {
+              try {
+                await messages?.close();
+              } catch {
+                // ignore
+              } finally {
+                messages = undefined;
+              }
             }
-
-            await cleanupSubscription();
-            await sleep(500);
           }
         } finally {
           await shutdown();

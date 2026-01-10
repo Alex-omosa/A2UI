@@ -36,10 +36,10 @@ export const Column: Component<ColumnProps> = (props) => {
     <div class={theme.components.Column} style={styles()}>
       <For each={children()}>
         {(child) => (
-          <Renderer 
-            component={child} 
+          <Renderer
+            component={child}
             surfaceId={props.surfaceId}
-            weight={child.properties?.weight ?? 1}
+            weight={typeof (child as any).weight === "number" ? (child as any).weight : undefined}
           />
         )}
       </For>

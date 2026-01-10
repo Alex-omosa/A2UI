@@ -12,7 +12,9 @@ processor.onDispatch(async (event) => {
 
 function startA2uiSseTransport(processor: ReturnType<typeof createProcessor>) {
   const subject = "a2ui.main";
-  const es = new EventSource(`/api/a2ui/stream?subject=${encodeURIComponent(subject)}`);
+  const es = new EventSource(
+    `/api/a2ui/stream?subject=${encodeURIComponent(subject)}&deliver=all`
+  );
 
   es.addEventListener("ready", (evt) => {
     console.log("A2UI transport ready:", (evt as MessageEvent).data);

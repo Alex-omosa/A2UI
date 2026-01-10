@@ -1,13 +1,9 @@
 /**
- * A2UI SolidJS Renderer - Message Processor
- * 
- * This module wraps the core A2uiMessageProcessor from @a2ui/lit
- * and integrates it with SolidJS's reactive system.
- * 
- * STEP 1: Message Processing
- * ==========================
- * Messages from the transport layer are fed into processMessages().
- * The processor parses them and updates its internal state (surfaces, data model).
+ * SolidJS-wrapped A2UI message processor.
+ *
+ * Adds a Solid signal (`surfacesVersion`) that increments whenever new
+ * server-to-client messages are processed, allowing renderer components to
+ * re-render without needing route navigation.
  */
 
 import { Data, Types } from "@a2ui/lit/0.8";
@@ -32,8 +28,7 @@ export interface DispatchedEvent {
  */
 export class SolidMessageProcessor extends Data.A2uiMessageProcessor {
   
-  // STEP 1a: Signal to trigger re-renders when surfaces change
-  // When processMessages() is called, we update this signal to notify SolidJS
+  // Signal used by the UI layer to track updates.
   private _surfacesVersion = createSignal(0);
   
   // Event listeners for dispatching user actions to the transport layer
@@ -50,56 +45,23 @@ export class SolidMessageProcessor extends Data.A2uiMessageProcessor {
     });
   }
 
-  /**
-   * STEP 1b: Process incoming A2UI messages
-   * 
-   * This is called by the application when messages arrive from the transport.
-   * After processing, we increment the version signal to trigger re-renders.
-   * 
-   * @param messages - Array of ServerToClientMessage from the agent
-   */
+  /** Processes incoming server-to-client A2UI messages and notifies the UI. */
   override processMessages(messages: Types.ServerToClientMessage[]): void {
-    console.log("[A2UI Processor] Processing messages:", messages);
-    
-    // Process messages using the parent class logic
-    // This handles: beginRendering, surfaceUpdate, dataModelUpdate, deleteSurface
+    // Parent implementation handles: beginRendering, surfaceUpdate, dataModelUpdate, deleteSurface
     super.processMessages(messages);
-    
-    // Debug: Log surfaces state after processing
-    console.log("[A2UI Processor] Surfaces after processing:", this.surfaces);
-    for (const [id, surface] of this.surfaces.entries()) {
-      console.log(`[A2UI Processor] Surface "${id}":`, {
-        rootComponentId: surface.rootComponentId,
-        componentTree: surface.componentTree,
-        componentsCount: surface.components.size,
-      });
-    }
-    
-    // STEP 1c: Notify SolidJS that surfaces have changed
-    // This triggers any components reading surfacesVersion() to re-render
+
+    // Notify Solid that surfaces have changed.
     const [, setVersion] = this._surfacesVersion;
     setVersion((v) => v + 1);
-    
-    console.log("[A2UI Processor] Version updated, surfaces count:", this.surfaces.size);
   }
 
-  /**
-   * Get the current surfaces version (for reactive tracking)
-   * Components should call this to subscribe to surface changes
-   */
+  /** Current surfaces version (read to subscribe). */
   get surfacesVersion(): number {
     const [version] = this._surfacesVersion;
     return version();
   }
 
-  /**
-   * STEP 5: Dispatch a user action event
-   * 
-   * Called by interactive components (Button, TextField, etc.) when user interacts.
-   * Returns a promise that resolves when the server responds.
-   * 
-   * @param message - The A2UIClientEventMessage to send
-   */
+  /** Dispatches a user action event to the app layer (transport-owned). */
   dispatch(message: Types.A2UIClientEventMessage): Promise<Types.ServerToClientMessage[]> {
     return new Promise((resolve, reject) => {
       const event: DispatchedEvent = { message, resolve, reject };
@@ -111,18 +73,13 @@ export class SolidMessageProcessor extends Data.A2uiMessageProcessor {
     });
   }
 
-  /**
-   * Subscribe to dispatched events
-   * The application layer uses this to send events to the transport
-   */
+  /** Subscribe to dispatched events (the app layer wires transport here). */
   onDispatch(listener: (event: DispatchedEvent) => void): () => void {
     this._eventListeners.add(listener);
     return () => this._eventListeners.delete(listener);
   }
 
-  /**
-   * Helper to clear and reprocess (useful for full refresh)
-   */
+  /** Clears surfaces and reprocesses a full message snapshot. */
   replaceMessages(messages: Types.ServerToClientMessage[]): void {
     batch(() => {
       this.clearSurfaces();

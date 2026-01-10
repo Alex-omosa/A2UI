@@ -122,4 +122,4 @@ echo "Publishing to $NATS_URL subject '$SUBJECT'..."
 
 nats pub -s "$NATS_URL" "$SUBJECT" "$PAYLOAD"
 
-echo "Done. Open http://localhost:3001/a2ui to see it." 
+echo "Done. Open your SolidStart demo at /a2ui to see it."
