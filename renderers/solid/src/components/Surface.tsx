@@ -69,8 +69,8 @@ export const A2UISurface: Component<SurfaceProps> = (props) => {
     const s = surface();
     if (!s) return null;
     
-    // The surface has a 'root' property containing the component tree
-    return s.root;
+    // The surface has a 'componentTree' property containing the built component tree
+    return s.componentTree;
   });
 
   return (
