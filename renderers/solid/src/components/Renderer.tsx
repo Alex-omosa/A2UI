@@ -57,7 +57,7 @@ export const Renderer: Component<RendererProps> = (props) => {
           */}
           
           {/* Text Component - renders text content */}
-          <Match when={component().type === "text"}>
+          <Match when={component().type === "Text"}>
             <Text 
               component={component() as Types.TextNode}
               surfaceId={props.surfaceId}
@@ -66,7 +66,7 @@ export const Renderer: Component<RendererProps> = (props) => {
           </Match>
 
           {/* Button Component - interactive, triggers actions */}
-          <Match when={component().type === "button"}>
+          <Match when={component().type === "Button"}>
             <Button 
               component={component() as Types.ButtonNode}
               surfaceId={props.surfaceId}
@@ -75,7 +75,7 @@ export const Renderer: Component<RendererProps> = (props) => {
           </Match>
 
           {/* Row Component - horizontal layout */}
-          <Match when={component().type === "row"}>
+          <Match when={component().type === "Row"}>
             <Row 
               component={component() as Types.RowNode}
               surfaceId={props.surfaceId}
@@ -84,7 +84,7 @@ export const Renderer: Component<RendererProps> = (props) => {
           </Match>
 
           {/* Column Component - vertical layout */}
-          <Match when={component().type === "column"}>
+          <Match when={component().type === "Column"}>
             <Column 
               component={component() as Types.ColumnNode}
               surfaceId={props.surfaceId}

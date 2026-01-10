@@ -40,7 +40,7 @@ function generateDemoMessages() {
         components: [
           {
             id: "root-column",
-            type: "column",
+            type: "Column",
             properties: {
               children: {
                 explicitList: ["header-text"],
@@ -49,7 +49,7 @@ function generateDemoMessages() {
           },
           {
             id: "header-text",
-            type: "text",
+            type: "Text",
             properties: {
               text: { literalString: "🚀 Welcome to A2UI Streaming Demo" },
               usageHint: "h1",
@@ -66,7 +66,7 @@ function generateDemoMessages() {
         components: [
           {
             id: "root-column",
-            type: "column",
+            type: "Column",
             properties: {
               children: {
                 explicitList: ["header-text", "subtitle-text"],
@@ -75,7 +75,7 @@ function generateDemoMessages() {
           },
           {
             id: "subtitle-text",
-            type: "text",
+            type: "Text",
             properties: {
               text: { literalString: "Watch as components stream in with random delays..." },
               usageHint: "body",
@@ -92,7 +92,7 @@ function generateDemoMessages() {
         components: [
           {
             id: "root-column",
-            type: "column",
+            type: "Column",
             properties: {
               children: {
                 explicitList: ["header-text", "subtitle-text", "status-row"],
@@ -101,7 +101,7 @@ function generateDemoMessages() {
           },
           {
             id: "status-row",
-            type: "row",
+            type: "Row",
             properties: {
               children: {
                 explicitList: ["status-icon", "status-text"],
@@ -110,7 +110,7 @@ function generateDemoMessages() {
           },
           {
             id: "status-icon",
-            type: "text",
+            type: "Text",
             properties: {
               text: { literalString: "⏳" },
               usageHint: "h2",
@@ -118,7 +118,7 @@ function generateDemoMessages() {
           },
           {
             id: "status-text",
-            type: "text",
+            type: "Text",
             properties: {
               text: { literalString: "Loading more content..." },
               usageHint: "body",
@@ -135,7 +135,7 @@ function generateDemoMessages() {
         components: [
           {
             id: "root-column",
-            type: "column",
+            type: "Column",
             properties: {
               children: {
                 explicitList: ["header-text", "subtitle-text", "status-row", "features-section"],
@@ -144,7 +144,7 @@ function generateDemoMessages() {
           },
           {
             id: "features-section",
-            type: "column",
+            type: "Column",
             properties: {
               children: {
                 explicitList: ["features-title"],
@@ -153,7 +153,7 @@ function generateDemoMessages() {
           },
           {
             id: "features-title",
-            type: "text",
+            type: "Text",
             properties: {
               text: { literalString: "✨ A2UI Features" },
               usageHint: "h2",
@@ -170,7 +170,7 @@ function generateDemoMessages() {
         components: [
           {
             id: "features-section",
-            type: "column",
+            type: "Column",
             properties: {
               children: {
                 explicitList: ["features-title", "feature-1"],
@@ -179,7 +179,7 @@ function generateDemoMessages() {
           },
           {
             id: "feature-1",
-            type: "row",
+            type: "Row",
             properties: {
               children: {
                 explicitList: ["feature-1-icon", "feature-1-text"],
@@ -188,7 +188,7 @@ function generateDemoMessages() {
           },
           {
             id: "feature-1-icon",
-            type: "text",
+            type: "Text",
             properties: {
               text: { literalString: "📡" },
               usageHint: "body",
@@ -196,7 +196,7 @@ function generateDemoMessages() {
           },
           {
             id: "feature-1-text",
-            type: "text",
+            type: "Text",
             properties: {
               text: { literalString: "Real-time streaming UI updates via NATS JetStream" },
               usageHint: "body",
@@ -213,7 +213,7 @@ function generateDemoMessages() {
         components: [
           {
             id: "features-section",
-            type: "column",
+            type: "Column",
             properties: {
               children: {
                 explicitList: ["features-title", "feature-1", "feature-2"],
@@ -222,7 +222,7 @@ function generateDemoMessages() {
           },
           {
             id: "feature-2",
-            type: "row",
+            type: "Row",
             properties: {
               children: {
                 explicitList: ["feature-2-icon", "feature-2-text"],
@@ -231,7 +231,7 @@ function generateDemoMessages() {
           },
           {
             id: "feature-2-icon",
-            type: "text",
+            type: "Text",
             properties: {
               text: { literalString: "⚡" },
               usageHint: "body",
@@ -239,7 +239,7 @@ function generateDemoMessages() {
           },
           {
             id: "feature-2-text",
-            type: "text",
+            type: "Text",
             properties: {
               text: { literalString: "SolidJS reactive rendering for blazing fast updates" },
               usageHint: "body",
@@ -256,7 +256,7 @@ function generateDemoMessages() {
         components: [
           {
             id: "features-section",
-            type: "column",
+            type: "Column",
             properties: {
               children: {
                 explicitList: ["features-title", "feature-1", "feature-2", "feature-3"],
@@ -265,7 +265,7 @@ function generateDemoMessages() {
           },
           {
             id: "feature-3",
-            type: "row",
+            type: "Row",
             properties: {
               children: {
                 explicitList: ["feature-3-icon", "feature-3-text"],
@@ -274,7 +274,7 @@ function generateDemoMessages() {
           },
           {
             id: "feature-3-icon",
-            type: "text",
+            type: "Text",
             properties: {
               text: { literalString: "🔄" },
               usageHint: "body",
@@ -282,7 +282,7 @@ function generateDemoMessages() {
           },
           {
             id: "feature-3-text",
-            type: "text",
+            type: "Text",
             properties: {
               text: { literalString: "Progressive rendering - UI builds up as data arrives" },
               usageHint: "body",
@@ -299,7 +299,7 @@ function generateDemoMessages() {
         components: [
           {
             id: "root-column",
-            type: "column",
+            type: "Column",
             properties: {
               children: {
                 explicitList: ["header-text", "subtitle-text", "status-row", "features-section", "button-row"],
@@ -308,7 +308,7 @@ function generateDemoMessages() {
           },
           {
             id: "button-row",
-            type: "row",
+            type: "Row",
             properties: {
               children: {
                 explicitList: ["action-button", "info-button"],
@@ -317,7 +317,7 @@ function generateDemoMessages() {
           },
           {
             id: "action-button",
-            type: "button",
+            type: "Button",
             properties: {
               child: "action-button-text",
               action: {
@@ -328,7 +328,7 @@ function generateDemoMessages() {
           },
           {
             id: "action-button-text",
-            type: "text",
+            type: "Text",
             properties: {
               text: { literalString: "🎯 Primary Action" },
               usageHint: "body",
@@ -336,7 +336,7 @@ function generateDemoMessages() {
           },
           {
             id: "info-button",
-            type: "button",
+            type: "Button",
             properties: {
               child: "info-button-text",
               action: {
@@ -347,7 +347,7 @@ function generateDemoMessages() {
           },
           {
             id: "info-button-text",
-            type: "text",
+            type: "Text",
             properties: {
               text: { literalString: "ℹ️ More Info" },
               usageHint: "body",
@@ -364,7 +364,7 @@ function generateDemoMessages() {
         components: [
           {
             id: "status-icon",
-            type: "text",
+            type: "Text",
             properties: {
               text: { literalString: "✅" },
               usageHint: "h2",
@@ -372,7 +372,7 @@ function generateDemoMessages() {
           },
           {
             id: "status-text",
-            type: "text",
+            type: "Text",
             properties: {
               text: { literalString: "All content loaded successfully!" },
               usageHint: "body",
@@ -389,7 +389,7 @@ function generateDemoMessages() {
         components: [
           {
             id: "root-column",
-            type: "column",
+            type: "Column",
             properties: {
               children: {
                 explicitList: ["header-text", "subtitle-text", "status-row", "features-section", "button-row", "footer-text"],
@@ -398,7 +398,7 @@ function generateDemoMessages() {
           },
           {
             id: "footer-text",
-            type: "text",
+            type: "Text",
             properties: {
               text: { literalString: `🕐 Demo completed at ${getTimestamp()}` },
               usageHint: "caption",
