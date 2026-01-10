@@ -47,74 +47,81 @@ interface RendererProps {
  * The type field comes from the A2UI specification (see specification/0.8/)
  */
 export const Renderer: Component<RendererProps> = (props) => {
+  console.log("[Renderer] Rendering component:", props.component);
+  console.log("[Renderer] Component type:", props.component?.type);
+  
   return (
     <Show when={props.component} fallback={null}>
-      {(component) => (
-        <Switch fallback={<UnknownComponent type={component().type} />}>
-          {/* 
-            STEP 4: Match component type to SolidJS component
-            Each Match handles a specific A2UI component type
-          */}
-          
-          {/* Text Component - renders text content */}
-          <Match when={component().type === "Text"}>
-            <Text 
-              component={component() as Types.TextNode}
-              surfaceId={props.surfaceId}
-              weight={props.weight}
-            />
-          </Match>
-
-          {/* Button Component - interactive, triggers actions */}
-          <Match when={component().type === "Button"}>
-            <Button 
-              component={component() as Types.ButtonNode}
-              surfaceId={props.surfaceId}
-              weight={props.weight}
-            />
-          </Match>
-
-          {/* Row Component - horizontal layout */}
-          <Match when={component().type === "Row"}>
-            <Row 
-              component={component() as Types.RowNode}
-              surfaceId={props.surfaceId}
-              weight={props.weight}
-            />
-          </Match>
-
-          {/* Column Component - vertical layout */}
-          <Match when={component().type === "Column"}>
-            <Column 
-              component={component() as Types.ColumnNode}
-              surfaceId={props.surfaceId}
-              weight={props.weight}
-            />
-          </Match>
-
-          {/* 
-            TODO: Add more components as you implement them:
+      {(component) => {
+        console.log("[Renderer] Inside Show, component:", component());
+        console.log("[Renderer] Component type:", component().type);
+        return (
+          <Switch fallback={<UnknownComponent type={component().type} />}>
+            {/* 
+              STEP 4: Match component type to SolidJS component
+              Each Match handles a specific A2UI component type
+            */}
             
-            <Match when={component().type === "list"}>
-              <List component={...} />
+            {/* Text Component - renders text content */}
+            <Match when={component().type === "Text"}>
+              <Text 
+                component={component() as Types.TextNode}
+                surfaceId={props.surfaceId}
+                weight={props.weight}
+              />
             </Match>
-            
-            <Match when={component().type === "card"}>
-              <Card component={...} />
+
+            {/* Button Component - interactive, triggers actions */}
+            <Match when={component().type === "Button"}>
+              <Button 
+                component={component() as Types.ButtonNode}
+                surfaceId={props.surfaceId}
+                weight={props.weight}
+              />
             </Match>
-            
-            <Match when={component().type === "image"}>
-              <Image component={...} />
+
+            {/* Row Component - horizontal layout */}
+            <Match when={component().type === "Row"}>
+              <Row 
+                component={component() as Types.RowNode}
+                surfaceId={props.surfaceId}
+                weight={props.weight}
+              />
             </Match>
-            
-            <Match when={component().type === "textField"}>
-              <TextField component={...} />
+
+            {/* Column Component - vertical layout */}
+            <Match when={component().type === "Column"}>
+              <Column 
+                component={component() as Types.ColumnNode}
+                surfaceId={props.surfaceId}
+                weight={props.weight}
+              />
             </Match>
-            
-            See Types.AnyComponentNode for all possible types
-          */}
-        </Switch>
-      )}
+
+            {/* 
+              TODO: Add more components as you implement them:
+              
+              <Match when={component().type === "list"}>
+                <List component={...} />
+              </Match>
+              
+              <Match when={component().type === "card"}>
+                <Card component={...} />
+              </Match>
+              
+              <Match when={component().type === "image"}>
+                <Image component={...} />
+              </Match>
+              
+              <Match when={component().type === "textField"}>
+                <TextField component={...} />
+              </Match>
+              
+              See Types.AnyComponentNode for all possible types
+            */}
+          </Switch>
+        );
+      }}
     </Show>
   );
 };

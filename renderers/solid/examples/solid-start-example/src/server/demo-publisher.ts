@@ -26,6 +26,18 @@ function getTimestamp(): string {
   return new Date().toLocaleTimeString();
 }
 
+// Helper to create a component in correct A2UI format
+// The component object uses the type name as a key: { "Text": { ...props } }
+function createComponent(id: string, type: string, props: Record<string, unknown>, weight?: number) {
+  return {
+    id,
+    ...(weight !== undefined ? { weight } : {}),
+    component: {
+      [type]: props,
+    },
+  };
+}
+
 // Generate messages with current timestamp
 function generateDemoMessages() {
   return [
@@ -37,23 +49,13 @@ function generateDemoMessages() {
       surfaceUpdate: {
         surfaceId: "main",
         components: [
-          {
-            id: "root-column",
-            type: "Column",
-            properties: {
-              children: {
-                explicitList: ["header-text"],
-              },
-            },
-          },
-          {
-            id: "header-text",
-            type: "Text",
-            properties: {
-              text: { literalString: "🚀 Welcome to A2UI Streaming Demo" },
-              usageHint: "h1",
-            },
-          },
+          createComponent("root-column", "Column", {
+            children: { explicitList: ["header-text"] },
+          }),
+          createComponent("header-text", "Text", {
+            text: { literalString: "🚀 Welcome to A2UI Streaming Demo" },
+            usageHint: "h1",
+          }),
         ],
       },
     },
@@ -66,351 +68,193 @@ function generateDemoMessages() {
       },
     },
 
-    // Message 2: Add a subtitle
+    // Message 3: Add a subtitle
     {
       surfaceUpdate: {
         surfaceId: "main",
         components: [
-          {
-            id: "root-column",
-            type: "Column",
-            properties: {
-              children: {
-                explicitList: ["header-text", "subtitle-text"],
-              },
-            },
-          },
-          {
-            id: "subtitle-text",
-            type: "Text",
-            properties: {
-              text: { literalString: "Watch as components stream in with random delays..." },
-              usageHint: "body",
-            },
-          },
+          createComponent("root-column", "Column", {
+            children: { explicitList: ["header-text", "subtitle-text"] },
+          }),
+          createComponent("subtitle-text", "Text", {
+            text: { literalString: "Watch as components stream in with random delays..." },
+            usageHint: "body",
+          }),
         ],
       },
     },
 
-    // Message 3: Add a row with status info
+    // Message 4: Add a row with status info
     {
       surfaceUpdate: {
         surfaceId: "main",
         components: [
-          {
-            id: "root-column",
-            type: "Column",
-            properties: {
-              children: {
-                explicitList: ["header-text", "subtitle-text", "status-row"],
-              },
-            },
-          },
-          {
-            id: "status-row",
-            type: "Row",
-            properties: {
-              children: {
-                explicitList: ["status-icon", "status-text"],
-              },
-            },
-          },
-          {
-            id: "status-icon",
-            type: "Text",
-            properties: {
-              text: { literalString: "⏳" },
-              usageHint: "h2",
-            },
-          },
-          {
-            id: "status-text",
-            type: "Text",
-            properties: {
-              text: { literalString: "Loading more content..." },
-              usageHint: "body",
-            },
-          },
+          createComponent("root-column", "Column", {
+            children: { explicitList: ["header-text", "subtitle-text", "status-row"] },
+          }),
+          createComponent("status-row", "Row", {
+            children: { explicitList: ["status-icon", "status-text"] },
+          }),
+          createComponent("status-icon", "Text", {
+            text: { literalString: "⏳" },
+            usageHint: "h2",
+          }),
+          createComponent("status-text", "Text", {
+            text: { literalString: "Loading more content..." },
+            usageHint: "body",
+          }),
         ],
       },
     },
 
-    // Message 4: Add a feature list column
+    // Message 5: Add a feature list column
     {
       surfaceUpdate: {
         surfaceId: "main",
         components: [
-          {
-            id: "root-column",
-            type: "Column",
-            properties: {
-              children: {
-                explicitList: ["header-text", "subtitle-text", "status-row", "features-section"],
-              },
-            },
-          },
-          {
-            id: "features-section",
-            type: "Column",
-            properties: {
-              children: {
-                explicitList: ["features-title"],
-              },
-            },
-          },
-          {
-            id: "features-title",
-            type: "Text",
-            properties: {
-              text: { literalString: "✨ A2UI Features" },
-              usageHint: "h2",
-            },
-          },
+          createComponent("root-column", "Column", {
+            children: { explicitList: ["header-text", "subtitle-text", "status-row", "features-section"] },
+          }),
+          createComponent("features-section", "Column", {
+            children: { explicitList: ["features-title"] },
+          }),
+          createComponent("features-title", "Text", {
+            text: { literalString: "✨ A2UI Features" },
+            usageHint: "h2",
+          }),
         ],
       },
     },
 
-    // Message 5: Add first feature
+    // Message 6: Add first feature
     {
       surfaceUpdate: {
         surfaceId: "main",
         components: [
-          {
-            id: "features-section",
-            type: "Column",
-            properties: {
-              children: {
-                explicitList: ["features-title", "feature-1"],
-              },
-            },
-          },
-          {
-            id: "feature-1",
-            type: "Row",
-            properties: {
-              children: {
-                explicitList: ["feature-1-icon", "feature-1-text"],
-              },
-            },
-          },
-          {
-            id: "feature-1-icon",
-            type: "Text",
-            properties: {
-              text: { literalString: "📡" },
-              usageHint: "body",
-            },
-          },
-          {
-            id: "feature-1-text",
-            type: "Text",
-            properties: {
-              text: { literalString: "Real-time streaming UI updates via NATS JetStream" },
-              usageHint: "body",
-            },
-          },
+          createComponent("features-section", "Column", {
+            children: { explicitList: ["features-title", "feature-1"] },
+          }),
+          createComponent("feature-1", "Row", {
+            children: { explicitList: ["feature-1-icon", "feature-1-text"] },
+          }),
+          createComponent("feature-1-icon", "Text", {
+            text: { literalString: "📡" },
+            usageHint: "body",
+          }),
+          createComponent("feature-1-text", "Text", {
+            text: { literalString: "Real-time streaming UI updates via NATS JetStream" },
+            usageHint: "body",
+          }),
         ],
       },
     },
 
-    // Message 6: Add second feature
+    // Message 7: Add second feature
     {
       surfaceUpdate: {
         surfaceId: "main",
         components: [
-          {
-            id: "features-section",
-            type: "Column",
-            properties: {
-              children: {
-                explicitList: ["features-title", "feature-1", "feature-2"],
-              },
-            },
-          },
-          {
-            id: "feature-2",
-            type: "Row",
-            properties: {
-              children: {
-                explicitList: ["feature-2-icon", "feature-2-text"],
-              },
-            },
-          },
-          {
-            id: "feature-2-icon",
-            type: "Text",
-            properties: {
-              text: { literalString: "⚡" },
-              usageHint: "body",
-            },
-          },
-          {
-            id: "feature-2-text",
-            type: "Text",
-            properties: {
-              text: { literalString: "SolidJS reactive rendering for blazing fast updates" },
-              usageHint: "body",
-            },
-          },
+          createComponent("features-section", "Column", {
+            children: { explicitList: ["features-title", "feature-1", "feature-2"] },
+          }),
+          createComponent("feature-2", "Row", {
+            children: { explicitList: ["feature-2-icon", "feature-2-text"] },
+          }),
+          createComponent("feature-2-icon", "Text", {
+            text: { literalString: "⚡" },
+            usageHint: "body",
+          }),
+          createComponent("feature-2-text", "Text", {
+            text: { literalString: "SolidJS reactive rendering for blazing fast updates" },
+            usageHint: "body",
+          }),
         ],
       },
     },
 
-    // Message 7: Add third feature
+    // Message 8: Add third feature
     {
       surfaceUpdate: {
         surfaceId: "main",
         components: [
-          {
-            id: "features-section",
-            type: "Column",
-            properties: {
-              children: {
-                explicitList: ["features-title", "feature-1", "feature-2", "feature-3"],
-              },
-            },
-          },
-          {
-            id: "feature-3",
-            type: "Row",
-            properties: {
-              children: {
-                explicitList: ["feature-3-icon", "feature-3-text"],
-              },
-            },
-          },
-          {
-            id: "feature-3-icon",
-            type: "Text",
-            properties: {
-              text: { literalString: "🔄" },
-              usageHint: "body",
-            },
-          },
-          {
-            id: "feature-3-text",
-            type: "Text",
-            properties: {
-              text: { literalString: "Progressive rendering - UI builds up as data arrives" },
-              usageHint: "body",
-            },
-          },
+          createComponent("features-section", "Column", {
+            children: { explicitList: ["features-title", "feature-1", "feature-2", "feature-3"] },
+          }),
+          createComponent("feature-3", "Row", {
+            children: { explicitList: ["feature-3-icon", "feature-3-text"] },
+          }),
+          createComponent("feature-3-icon", "Text", {
+            text: { literalString: "🔄" },
+            usageHint: "body",
+          }),
+          createComponent("feature-3-text", "Text", {
+            text: { literalString: "Progressive rendering - UI builds up as data arrives" },
+            usageHint: "body",
+          }),
         ],
       },
     },
 
-    // Message 8: Add interactive button row
+    // Message 9: Add interactive button row
     {
       surfaceUpdate: {
         surfaceId: "main",
         components: [
-          {
-            id: "root-column",
-            type: "Column",
-            properties: {
-              children: {
-                explicitList: ["header-text", "subtitle-text", "status-row", "features-section", "button-row"],
-              },
-            },
-          },
-          {
-            id: "button-row",
-            type: "Row",
-            properties: {
-              children: {
-                explicitList: ["action-button", "info-button"],
-              },
-            },
-          },
-          {
-            id: "action-button",
-            type: "Button",
-            properties: {
-              child: "action-button-text",
-              action: {
-                name: "primaryAction",
-                context: [],
-              },
-            },
-          },
-          {
-            id: "action-button-text",
-            type: "Text",
-            properties: {
-              text: { literalString: "🎯 Primary Action" },
-              usageHint: "body",
-            },
-          },
-          {
-            id: "info-button",
-            type: "Button",
-            properties: {
-              child: "info-button-text",
-              action: {
-                name: "showInfo",
-                context: [],
-              },
-            },
-          },
-          {
-            id: "info-button-text",
-            type: "Text",
-            properties: {
-              text: { literalString: "ℹ️ More Info" },
-              usageHint: "body",
-            },
-          },
+          createComponent("root-column", "Column", {
+            children: { explicitList: ["header-text", "subtitle-text", "status-row", "features-section", "button-row"] },
+          }),
+          createComponent("button-row", "Row", {
+            children: { explicitList: ["action-button", "info-button"] },
+          }),
+          createComponent("action-button", "Button", {
+            child: "action-button-text",
+            action: { name: "primaryAction", context: [] },
+          }),
+          createComponent("action-button-text", "Text", {
+            text: { literalString: "🎯 Primary Action" },
+            usageHint: "body",
+          }),
+          createComponent("info-button", "Button", {
+            child: "info-button-text",
+            action: { name: "showInfo", context: [] },
+          }),
+          createComponent("info-button-text", "Text", {
+            text: { literalString: "ℹ️ More Info" },
+            usageHint: "body",
+          }),
         ],
       },
     },
 
-    // Message 9: Update status to complete
+    // Message 10: Update status to complete
     {
       surfaceUpdate: {
         surfaceId: "main",
         components: [
-          {
-            id: "status-icon",
-            type: "Text",
-            properties: {
-              text: { literalString: "✅" },
-              usageHint: "h2",
-            },
-          },
-          {
-            id: "status-text",
-            type: "Text",
-            properties: {
-              text: { literalString: "All content loaded successfully!" },
-              usageHint: "body",
-            },
-          },
+          createComponent("status-icon", "Text", {
+            text: { literalString: "✅" },
+            usageHint: "h2",
+          }),
+          createComponent("status-text", "Text", {
+            text: { literalString: "All content loaded successfully!" },
+            usageHint: "body",
+          }),
         ],
       },
     },
 
-    // Message 10: Add footer with timestamp
+    // Message 11: Add footer with timestamp
     {
       surfaceUpdate: {
         surfaceId: "main",
         components: [
-          {
-            id: "root-column",
-            type: "Column",
-            properties: {
-              children: {
-                explicitList: ["header-text", "subtitle-text", "status-row", "features-section", "button-row", "footer-text"],
-              },
-            },
-          },
-          {
-            id: "footer-text",
-            type: "Text",
-            properties: {
-              text: { literalString: `🕐 Demo completed at ${getTimestamp()}` },
-              usageHint: "caption",
-            },
-          },
+          createComponent("root-column", "Column", {
+            children: { explicitList: ["header-text", "subtitle-text", "status-row", "features-section", "button-row", "footer-text"] },
+          }),
+          createComponent("footer-text", "Text", {
+            text: { literalString: `🕐 Demo completed at ${getTimestamp()}` },
+            usageHint: "caption",
+          }),
         ],
       },
     },

@@ -59,14 +59,28 @@ export class SolidMessageProcessor extends Data.A2uiMessageProcessor {
    * @param messages - Array of ServerToClientMessage from the agent
    */
   override processMessages(messages: Types.ServerToClientMessage[]): void {
+    console.log("[A2UI Processor] Processing messages:", messages);
+    
     // Process messages using the parent class logic
     // This handles: beginRendering, surfaceUpdate, dataModelUpdate, deleteSurface
     super.processMessages(messages);
+    
+    // Debug: Log surfaces state after processing
+    console.log("[A2UI Processor] Surfaces after processing:", this.surfaces);
+    for (const [id, surface] of this.surfaces.entries()) {
+      console.log(`[A2UI Processor] Surface "${id}":`, {
+        rootComponentId: surface.rootComponentId,
+        componentTree: surface.componentTree,
+        componentsCount: surface.components.size,
+      });
+    }
     
     // STEP 1c: Notify SolidJS that surfaces have changed
     // This triggers any components reading surfacesVersion() to re-render
     const [, setVersion] = this._surfacesVersion;
     setVersion((v) => v + 1);
+    
+    console.log("[A2UI Processor] Version updated, surfaces count:", this.surfaces.size);
   }
 
   /**

@@ -54,22 +54,34 @@ export const A2UISurface: Component<SurfaceProps> = (props) => {
   const processor = useProcessor();
   const theme = useTheme();
 
+  console.log("[A2UISurface] Rendering surface:", props.surfaceId);
+
   // STEP 2: Reactively get the surface data from the processor
   // This memo re-runs whenever surfacesVersion changes
   const surface = createMemo(() => {
     // Subscribe to changes by reading the version
-    processor.surfacesVersion;
+    const version = processor.surfacesVersion;
+    console.log("[A2UISurface] Version:", version, "Available surfaces:", [...processor.surfaces.keys()]);
     
     // Get the surface from the processor's internal state
-    return processor.surfaces.get(props.surfaceId);
+    const s = processor.surfaces.get(props.surfaceId);
+    console.log("[A2UISurface] Got surface for", props.surfaceId, ":", s);
+    return s;
   });
 
   // STEP 3: Get the root component of the surface
   const rootComponent = createMemo(() => {
     const s = surface();
-    if (!s) return null;
+    console.log("[A2UISurface] Surface data:", s);
+    if (!s) {
+      console.log("[A2UISurface] No surface found");
+      return null;
+    }
     
     // The surface has a 'componentTree' property containing the built component tree
+    console.log("[A2UISurface] componentTree:", s.componentTree);
+    console.log("[A2UISurface] rootComponentId:", s.rootComponentId);
+    console.log("[A2UISurface] components map:", s.components);
     return s.componentTree;
   });
 
@@ -79,13 +91,16 @@ export const A2UISurface: Component<SurfaceProps> = (props) => {
         when={rootComponent()} 
         fallback={<SurfaceLoading surfaceId={props.surfaceId} />}
       >
-        {(root) => (
-          // STEP 4: Render the component tree starting from root
-          <Renderer 
-            component={root()} 
-            surfaceId={props.surfaceId}
-          />
-        )}
+        {(root) => {
+          console.log("[A2UISurface] Rendering root component:", root());
+          return (
+            // STEP 4: Render the component tree starting from root
+            <Renderer 
+              component={root()} 
+              surfaceId={props.surfaceId}
+            />
+          );
+        }}
       </Show>
     </div>
   );
