@@ -14,3 +14,12 @@ site/
 
 # Python virtual environment
 .venv/
+
+# SolidStart/Vinxi timestamped config artifacts
+renderers/solid/examples/solid-start-example/app.config.timestamp_*.js
+**/node_modules/
+**/.output/
+**/.vinxi/
+
+# Local tooling binaries (do not commit)
+nats-server
