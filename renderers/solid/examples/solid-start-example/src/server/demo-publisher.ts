@@ -29,12 +29,11 @@ function getTimestamp(): string {
 // Generate messages with current timestamp
 function generateDemoMessages() {
   return [
-    // Message 1: Initial render with a welcome message
+    // Message 1: First send surfaceUpdate to populate component buffer
+    // IMPORTANT: surfaceUpdate must come BEFORE beginRendering because
+    // the processor handles beginRendering first, which tries to build
+    // the component tree from the buffer
     {
-      beginRendering: {
-        surfaceId: "main",
-        root: "root-column",
-      },
       surfaceUpdate: {
         surfaceId: "main",
         components: [
@@ -56,6 +55,14 @@ function generateDemoMessages() {
             },
           },
         ],
+      },
+    },
+
+    // Message 2: Now trigger rendering with beginRendering
+    {
+      beginRendering: {
+        surfaceId: "main",
+        root: "root-column",
       },
     },
 
