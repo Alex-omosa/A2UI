@@ -1,0 +1,28 @@
+{
+  "name": "@a2ui/solid",
+  "version": "0.8.0",
+  "description": "A2UI SolidJS Renderer",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "dependencies": {
+    "@a2ui/lit": "file:../lit",
+    "solid-js": "^1.9.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.0"
+  },
+  "peerDependencies": {
+    "solid-js": "^1.9.0"
+  }
+}
