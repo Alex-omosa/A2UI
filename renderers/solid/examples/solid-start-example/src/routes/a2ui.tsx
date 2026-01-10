@@ -12,73 +12,91 @@ processor.onDispatch(async (event) => {
 
 function simulateAgentMessage() {
   const messages: Types.ServerToClientMessage[] = [
-    { beginRendering: { surfaceId: "main" } },
+    {
+      beginRendering: {
+        surfaceId: "main",
+        root: "root",
+      },
+    },
     {
       surfaceUpdate: {
         surfaceId: "main",
-        root: {
-          type: "column",
-          id: "root-column",
-          dataContextPath: "",
-          properties: {
-            children: [
-              {
-                type: "text",
-                id: "title",
-                dataContextPath: "",
-                properties: { text: { literalString: "Hello from A2UI!" }, usageHint: "h1" }
+        components: [
+          {
+            id: "root",
+            component: {
+              Column: {
+                children: { explicitList: ["title", "subtitle", "button-row"] },
               },
-              {
-                type: "text",
-                id: "subtitle",
-                dataContextPath: "",
-                properties: {
-                  text: { literalString: "This is rendered by the SolidJS renderer inside SolidStart." },
-                  usageHint: "body"
-                }
+            },
+          },
+          {
+            id: "title",
+            component: {
+              Text: {
+                text: { literalString: "Hello from A2UI!" },
+                usageHint: "h1",
               },
-              {
-                type: "row",
-                id: "button-row",
-                dataContextPath: "",
-                properties: {
-                  children: [
-                    {
-                      type: "button",
-                      id: "btn-1",
-                      dataContextPath: "",
-                      properties: {
-                        action: { name: "greet", context: [] },
-                        child: {
-                          type: "text",
-                          id: "btn-1-text",
-                          dataContextPath: "",
-                          properties: { text: { literalString: "Say Hello" }, usageHint: "body" }
-                        }
-                      }
-                    },
-                    {
-                      type: "button",
-                      id: "btn-2",
-                      dataContextPath: "",
-                      properties: {
-                        action: { name: "goodbye", context: [] },
-                        child: {
-                          type: "text",
-                          id: "btn-2-text",
-                          dataContextPath: "",
-                          properties: { text: { literalString: "Say Goodbye" }, usageHint: "body" }
-                        }
-                      }
-                    }
-                  ]
-                }
-              }
-            ]
-          }
-        } as Types.ColumnNode
-      }
-    }
+            },
+          },
+          {
+            id: "subtitle",
+            component: {
+              Text: {
+                text: {
+                  literalString: "This is rendered by the SolidJS renderer inside SolidStart.",
+                },
+                usageHint: "body",
+              },
+            },
+          },
+          {
+            id: "button-row",
+            component: {
+              Row: {
+                children: { explicitList: ["btn-1", "btn-2"] },
+              },
+            },
+          },
+          {
+            id: "btn-1",
+            component: {
+              Button: {
+                action: { name: "greet", context: [] },
+                child: "btn-1-text",
+              },
+            },
+          },
+          {
+            id: "btn-1-text",
+            component: {
+              Text: {
+                text: { literalString: "Say Hello" },
+                usageHint: "body",
+              },
+            },
+          },
+          {
+            id: "btn-2",
+            component: {
+              Button: {
+                action: { name: "goodbye", context: [] },
+                child: "btn-2-text",
+              },
+            },
+          },
+          {
+            id: "btn-2-text",
+            component: {
+              Text: {
+                text: { literalString: "Say Goodbye" },
+                usageHint: "body",
+              },
+            },
+          },
+        ],
+      },
+    },
   ];
 
   processor.processMessages(messages);
