@@ -1,0 +1,16 @@
+{
+  "name": "a2ui-solidstart-example-prod",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "nats": "2.29.3",
+    "nkeys.js": "1.1.0",
+    "pathe": "1.1.2",
+    "seroval": "1.4.2",
+    "seroval-plugins": "1.4.2",
+    "solid-js": "1.9.10",
+    "tweetnacl": "1.0.3",
+    "vinxi": "0.5.10"
+  }
+}
